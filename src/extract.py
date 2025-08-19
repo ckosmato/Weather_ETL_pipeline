@@ -15,29 +15,30 @@ import json
 import time
 import logging
 from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+# Main extraction function
 
-def extract(cities, api_key):
+
+def extract(config):
     saved_files = {}
-    for data_type, city in cities.items():
-
-        if city is None:
-            logger.info(f'{data_type} is empty, skipping')
-            continue
+    for city in config.cities:
 
         logger.info(f'Fetching coordinates for {city}')
-        lat, lon = fetch_coordinates(city, api_key)
+        lat, lon = fetch_coordinates(city, config.api_key)
 
         if lat is None or lon is None:
             logger.info(f'{lat} or {lon} is empty, skipping')
             continue
 
         logger.info(f'Fetching weather data for {city}')
-        saved_files[city] = fetch_weather(city, lat, lon, api_key)
+        saved_files[city] = fetch_weather(city, lat, lon, config)
 
     return saved_files
+
+# Fetch coordinates for a city from OpenWeatherMap API
 
 
 def fetch_coordinates(city, api_key):
@@ -59,13 +60,15 @@ def fetch_coordinates(city, api_key):
     logger.info(f"Coordinates for {city}: lat={lat}, lon={lon}")
     return lat, lon
 
+# Fetch weather data for a city from OpenWeatherMap API
 
-def fetch_weather(city, lat, lon, api_key):
+
+def fetch_weather(city, lat, lon, config):
 
     urls = {
-        'current_weather': f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={api_key}',
-        'forecast_weather': f'https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units=metric&appid={api_key}',
-        'air_pollution': f'https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}'
+        'current_weather': f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units={config.units}&appid={config.api_key}',
+        'forecast_weather': f'https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&units={config.units}&appid={config.api_key}',
+        'air_pollution': f'https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&units={config.units}&appid={config.api_key}'
     }
 
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -73,8 +76,8 @@ def fetch_weather(city, lat, lon, api_key):
 
     saved_files = []
     for data_type, api_url in urls.items():
-
-        file_path = f'./data/raw/raw_{data_type}_{city_safe}_{timestamp}.json'
+        file_path = Path(config.raw_path) / \
+            f'raw_{data_type}_{city_safe}_{timestamp}.json'
 
         try:
             res = requests.get(api_url, timeout=10)
@@ -91,6 +94,8 @@ def fetch_weather(city, lat, lon, api_key):
         logger.debug("Sleeping 1 second to avoid hitting API rate limit")
         time.sleep(1)
     return saved_files
+
+# Save data to a JSON file
 
 
 def save_file(file_path, data):
