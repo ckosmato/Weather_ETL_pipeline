@@ -10,6 +10,7 @@ Usage:
 
 
 from src.extract import extract
+from src.transform import transform
 import logging
 from src.utils.logger import setup_logging
 from src.utils.etl_config import setup_extraction_config
@@ -24,8 +25,12 @@ def main():
     extract_config = setup_extraction_config()
 
     logger.info('Starting extraction of data from API')
-    extract(extract_config)
+    saved_files = extract(extract_config)
     logger.info('Extraction of data from API finished')
+
+    air_pollution_df, current_weather_df, forecast_weather_df = transform(
+        saved_files)
+    print(air_pollution_df, current_weather_df, forecast_weather_df)
 
 
 if __name__ == '__main__':
