@@ -28,8 +28,10 @@ def main():
     saved_files = extract(extract_config)
     logger.info('Extraction of data from API finished')
 
+    logger.info('Starting transformation of extracted data')
     air_pollution_df, current_weather_df, forecast_weather_df = transform(
         saved_files)
+    logger.info('Transformation of extracted data finished')
     print(air_pollution_df, current_weather_df, forecast_weather_df)
 
 
