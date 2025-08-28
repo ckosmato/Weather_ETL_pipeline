@@ -1,3 +1,11 @@
+"""
+Transform Module
+
+Functions to convert raw JSON data into structured pandas DataFrames.
+
+Usage:
+    from src import transform
+"""
 import pandas as pd
 import json
 import logging
@@ -39,7 +47,7 @@ def transform(raw_file):
                 air_pollution_df['dt'] = pd.to_datetime(
                     air_pollution_df['dt'], unit='s')
                 drop_dupes_and_fill(air_pollution_df, ['city', 'dt'], {
-                    'main_aqi': 1,
+                    'main_aqi': -1,
                     'dt': pd.Timestamp("1970-01-01")
                 })
                 mask = air_pollution_df['main_aqi'].between(1, 5)
