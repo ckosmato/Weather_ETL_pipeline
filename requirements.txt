@@ -1,0 +1,9 @@
+# Core dependencies
+pandas
+sqlalchemy
+pyodbc
+python-dotenv
+
+# for testing
+pytest
+jupyterlab
