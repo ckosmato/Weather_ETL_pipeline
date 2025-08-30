@@ -22,11 +22,24 @@ from dotenv import load_dotenv
 
 
 @dataclass
-class ExtractionConfig:
+class ExtractConfig:
     cities: list
     api_key: str
     raw_path: str
     units: str
+
+
+@dataclass
+class LoadConfig:
+    host: str
+    database: str
+    driver: str
+
+
+@dataclass
+class EtlConfig:
+    Extract: ExtractConfig
+    Load: LoadConfig
 
 
 logger = logging.getLogger(__name__)
@@ -63,11 +76,21 @@ def setup_extraction_config():
         logger.error('No cities found in environment variables')
         raise ValueError('No cities found in environment variables')
 
-    config = ExtractionConfig(
+    Extract = ExtractConfig(
+        cities=cities,
         api_key=api_key,
         raw_path=raw_path,
-        units=units,
-        cities=cities
+        units=units
     )
 
-    return config
+    logger.info('Getting database configuration from environment')
+    Load = LoadConfig(
+        host=os.environ.get('HOST'),
+        database=os.environ.get('DATABASE'),
+        driver=os.environ.get('DRIVER')
+    )
+
+    return EtlConfig(
+        Extract=Extract,
+        Load=Load
+    )

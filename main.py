@@ -22,17 +22,25 @@ logger = logging.getLogger(__name__)
 
 def main():
     logger.info('Setting up extraction configuration')
-    extract_config = setup_extraction_config()
+    config = setup_extraction_config()
 
     logger.info('Starting extraction of data from API')
-    saved_files = extract(extract_config)
+    saved_files = extract(config.Extract)
     logger.info('Extraction of data from API finished')
 
     logger.info('Starting transformation of extracted data')
     air_pollution_df, current_weather_df, forecast_weather_df = transform(
         saved_files)
     logger.info('Transformation of extracted data finished')
-    print(air_pollution_df, current_weather_df, forecast_weather_df)
+
+    logger.info('Starting loading of transformed data into database')
+    air_pollution_df.name = "air_pollution"
+    current_weather_df.name = "current_weather"
+    forecast_weather_df.name = "forecast_weather"
+    load(air_pollution_df, config.Load)
+    load(current_weather_df, config.Load)
+    load(forecast_weather_df, config.Load)
+    logger.info('Loading of transformed data into database finished')
 
 
 if __name__ == '__main__':
