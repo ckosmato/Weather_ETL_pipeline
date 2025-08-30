@@ -11,6 +11,7 @@ Usage:
 
 from src.extract import extract
 from src.transform import transform
+from src.load import load
 import logging
 from src.utils.logger import setup_logging
 from src.utils.etl_config import setup_extraction_config
